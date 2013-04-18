@@ -1,0 +1,203 @@
+#strnav {margin-bottom:0px}
+#frmEdit {  }
+#header { font-weight: bold; }
+#frmEdit, #frmNew, #multilist,#caseidbx,.showWhenLoggedIn {display:none;}
+#self-leftbutton {visibility:hidden;}
+
+#header a,#muaddr {cursor: pointer;}
+.ui-widget-overlay {z-index:50;}
+.pending { background: transparent url(pending.gif) no-repeat; text-indent:0px; background-position:right;}
+	
+#loginmsg {color:red;font-weight:bold;text-align:center;}
+			
+body > div, #begin .opts { display:none; }
+/* #login, #topbar, #begin .opts, #cameraUpload { display:none; } */
+#login { display:block; }
+#topbar {background: black; color: white; font-weight: bold; margin: 0; padding: 0 0 0 1em; cursor:pointer; }
+		
+.icon-grey {
+	opacity: 0.25;
+}
+.disabled { opacity: 0.65; }
+#debug { display:none; }
+#btnDebug {font-size: xx-small;}
+/* OVERRIDES */
+.ui-dialog {
+	position: relative; overflow:auto; width:auto;
+}
+/*]]>*/
+#strnav, #streetSelectView, #blockSelectView, #mainlist {display:none;}
+		 
+		 
+		 
+		 
+		 
+		 .showWhenLoggedIn, #header, #searchCaseID, #cancelConfirm, 
+		,  #loggingIn, #loggedin, 
+		 #frmEdit, #frmNew, #multilist,#searchCaseID,
+		 #cameraupload,#gpsreport,#debug,#communities,#mainlist,#blockSelectView,#streetSelectView {}
+#self-leftbutton {
+		}
+		
+		 #createButton, #saveButton {
+			 display:none;
+			 padding-right:8px;
+		 }
+		 #createButton, #saveButton button{
+			 line-height:21px !important;
+			 width:60px !important;
+		 }
+		 
+
+		.formtable {
+			width:100%;
+			font-weight:bold;
+			
+			/*-webkit-border-radius: 10px !important;  Safari, Chrome */
+			/*border-radius: 10px !important;  CSS3 */
+		}
+		.edit {
+
+			/*-webkit-border-radius: 10px !important;  Safari, Chrome */
+			/*border-radius: 10px !important;  CSS3 */
+			background-color:#333; /* #e0e0e0; */
+			table-layout:fixed;
+		}
+		.taxonomy {
+			background-color:#333; /* #e0e0e0; */
+			color:#fff !important;	
+			font-size:18px;
+		}
+		.formtable input {
+			color:#fff;
+			height:100% !important;
+			width:90%;
+		}
+		/*.formtable select {
+			color:#fff;
+			height:100% !important;
+			width:90%;
+			background-color:#555 !important;
+		}*/
+		
+		.combined {
+			border-bottom:0px !important;
+		}
+
+		.formtable td {
+			vertical-align:middle;
+			height:50px;
+			padding-top:5px;
+			padding-bottom:5px;
+			border-bottom:1px solid #aaa;
+		}
+		.formtable form {
+			display:inline;
+			vertical-align:middle;
+		}
+		.rounded {
+			border-radius:10px !important;
+			-webkit-border-radius:10px !important;
+			background-color:transparent !important;
+			border:#999 1px solid !important;
+			font-size:16px !important;
+		}
+		.xtra {
+			font-weight:bold !important;
+			width:40px !important;
+			text-align:center !important;
+			height:40px !important;
+			line-height:40px !important;
+		}
+		textarea:focus, input:focus{
+		    outline: none !important;
+		}
+		.tap {
+			height:40px !important;
+			font-size:16px !important;
+			background-color:transparent !important;
+			border: 0px solid !important;
+			
+		}
+
+		.OrgType, .OrgTypeCombined {
+			color: #fff !important;
+			display:block;
+			width:70%;
+			overflow:hidden;
+			font-weight:normal;
+			font-size:16px;
+			width:100%;
+		}
+		.row-header {
+			color:#999;
+			background-color:#444;
+			text-align:right;
+			padding-right:5px;
+			width:60px;
+		}
+		.grey {
+			opacity:.6 !important;
+		}
+		.utility {
+			width:100px;
+		}
+		.navtable {
+			color:#000 !important;
+			font-size:18px;
+		}
+		.btn-save {
+			background-color:#00f !important;
+		}
+		.ui-autocomplete-input {
+			display:block;
+			list-style-type:none;
+		}
+		.ui-autocomplete {
+			width:43%;
+			max-height:260px;
+			overflow-y:scroll;
+			border-bottom:1px solid #222;
+			box-shadow: 0px 5px 5px 2px #111;
+			-moz-box-shadow: 0px 5px 5px 2px #111;
+			-webkit-box-shadow: 0px 5px 5px 2px #111;
+		}
+		
+		.ui-menu-item {
+			display:block;
+			background-color:#444 !important;
+			list-style-type:none;
+			border-bottom:1px solid #333;
+			border-left:1px solid #222;
+			border-right:1px solid #222;
+			line-height:40px;
+			vertical-align:middle;
+			font-size:15px;
+			padding-left:5px;
+			padding-top:7px;
+			font-weight:bold;
+		}
+		.ui-menu-item a {
+			color:#fff;
+		}
+		.ui-menu-item a:hover {
+			color:#fff;
+			text-decoration:none;
+		}
+		.valign{
+			height:100%;
+			vertical-align
+		}
+		.search {
+			height:40px !important;
+			font-size:16px !important;
+		}
+		#phoneBtn,#emailBtn,#URLBtn {
+			line-height: 45px; 
+			width: 50px;
+			float: right;
+		}
+		
+		
+		
+		

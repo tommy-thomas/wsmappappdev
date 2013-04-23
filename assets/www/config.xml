@@ -12,7 +12,9 @@
     <description>
         Tool for SSH Community Mapping 
     </description>
-
+	<icon src="res/drawable-ldpi/icon.png" gap:platform="android" gap:density="ldpi" />
+	<icon src="res/drawable-hdpi/icon.png" gap:platform="android" gap:density="mdpi" />
+	<icon src="res/drawable-mdpi/icon.png" gap:platform="android" gap:density="hdpi" />
     <author href="http://www.uchicago.edu" email="webservices@uchicago.edu">
         Naren Hazareesingh, Eugene Sadhu
     </author>

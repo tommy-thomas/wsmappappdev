@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!--  <meta name="viewport" content="width=330, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"> -->
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="viewport" content="width=320, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+		<title>MAPSCorps</title>
+		
+		
+		<link rel="stylesheet" href="css/checkbox.css">
+		<link rel="stylesheet" href="bootstrap/css/bootstrap.css">
+		<link rel="stylesheet" href="bootstrap/css/bootstrap-responsive.css">
+		<link rel="stylesheet" href="css/hhapp.css">
+		<style type="text/css">
+
+		</style>
+		
+		
+		<script type="text/javascript" src="json2.js"></script>
+		<script type="text/javascript" src="jquery.mobile/jquery-1.7.2.min.js"></script>
+		<!--       <script type="text/javascript" src="jquery.mobile/jquery.mobile-1.1.0.js"></script> -->
+		<script type="text/javascript" src="streetmap33.js"></script>
+		<script type="text/javascript" src="js/jquery-ui-1.8.5.custom.min.js"></script>
+		<script type="text/javascript">var t=[];</script>
+		<script type="text/javascript" src="orgtypes.js"></script>
+		<script type="text/javascript" charset="utf-8" src="cordova-1.7.0.js"></script>
+		<script type="text/javascript">
+		if( navigator.userAgent.match(/Android/i) ){
+		  $('style[type="text/css"]').text('@import url("android.css");');
+		}
+		$("#frmEdit").show();
+		</script>
+	</head>
+	<body>
+		<div style="display:block" class="navbar navbar-fixed-top">
+			<div class="navbar-inner">
+				<!--Left Bar Button-->
+				<span style="width:15%; text-align:left; " id="self-leftbutton" class="pull-left">
+					<button class="btn btn-navbar" id="btnBack" style="height:31px;float:left"><i class="icon-chevron-left"></i></button>
+				</span>
+				
+				<!--Title-->
+				<span id="self-title" class="brand pull-center" style="color:#333; margin-left:0; text-align:center;overflow:hidden;white-space:nowrap; padding-left:0;padding-right:0;font-weight:bold; width:60%; display:inline-block; ">
+					MAPSCorps Mapper
+				</span>
+	 			<!--Right Bar Button-->
+	 			<span id="self-rightbutton" style="width:25%;" class="pull-right">
+	 				<button style="height:31px;" id="menubutton" type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+	 					<!--<span class="badge badge-warning">2</span>-->
+	     				<span class="icon-bar"></span>
+	     				<span class="icon-bar"></span>
+	     				<span class="icon-bar"></span>
+	  				</button>
+	 		   </span>
+	 			<span id="saveButton" class="pull-right">
+	 				<button type="button" class="btn btn-primary"><strong>Save</strong></button>
+	 		   </span>
+	 			<span id="createButton" class="pull-right">
+	 				<button type="button" class="btn btn-primary"><strong>Save</strong></button>
+	 		   </span>
+	 		   <div class="nav-collapse collapse" style="height: 0px; ">
+	 		               <ul class="nav">
+   								
+								   
+	 		                 <li class="">
+	 							 <div style="text-align:center;">
+	 						   	  	<span id="camera">
+										<button class="upload btn btn-large btn-info disabled" style="height:40px"><i class="icon-camera icon-white"></i> <span>No Photos</span></button>
+									</span>
+	 						   		<span id="gpsreport">
+										<button class="upload btn btn-large btn-info disabled" style="height:40px"><i class="icon-globe icon-white"></i> <span>No GPS Data</span></button>
+									</span>
+	 							</div>
+	 		                 </li>
+								 
+	 						 <li>
+	 			 				<div id='searchCaseID' style="text-align:center;" class="showWhenLoggedIn input-prepend control-group">
+	 								<form action="" onSubmit="return caseIDSearch()">
+	 									<span class="add-on xtra"><i class="icon-search"></i></span><input class="search" placeholder="Search by Case ID" type='tel' id='caseidsearchbox' />
+	 								</form>
+	 			 				</div>
+	 						</li>
+								 
+								 
+	 		                 <li class="">
+
+	 							<span class="showWhenLoggedIn" id="header" style="text-align:left; float:right;">
+										
+	 								<i class="icon-user"></i> Logged in as: <span class="username" ></span>
+	 								<br>
+	 								<i class="icon-briefcase"></i> Number of cases: <span class="total"></span>
+									<br>
+	 								<i class="icon-refresh"></i> Updates Pending: <span id="pending">0</span>
+	 							</span>
+	 							<span class="showWhenLoggedIn" style="float:left;">
+	 								<button class="btn btn-primary btn-large" onclick="window.location.reload()" style="height:40px"><i class="icon-user icon-white"></i> Log Out</button>
+	 							</span>
+	 		                 </li>
+	 						 <li class="" style="display:none;">
+									 
+	 							 <button id='btnDebug' class="btn btn-warning btn-large"><i class="icon-cog icon-wrench"></i> Debug</button>
+	 						</li>
+	 		               </ul>
+	 		   </div>
+				
+	
+			</div>
+		</div>
+
+		<div id="login">
+			<div id="loginForm" style="text-align:center;"><br />
+				<form action="#header" onSubmit="$('#btnLogin').click();return false;" autocomplete="off">
+					<div class="input-prepend control-group">
+					<span class="add-on" style="line-height:40px;height:40px"><i class="icon-user"></i></span><input style="font-size:22px;height:40px;width:70%" type="text" name="username" placeholder="Username" value="training"/><br/>
+					</div>
+					<br>
+					<div class="input-prepend control-group">
+					<span class="add-on" style="line-height:40px;height:40px"><i class="icon-lock"></i></span></span><input style="font-size:22px;height:40px;width:70%" type="text" name="passwd" placeholder="Password" value="mode"/><br/>
+					</div>
+					<br>
+					<div id="loginmsg"></div>
+					<button class="btn btn-primary btn-large" id="btnLogin">Login</button>
+				</form>
+				<div class="loading"></div>
+			</div>
+			<div id="communities" style="display:none">
+				<div class="opts">
+					<table class="table navtable" id="commTable">
+					</table>
+				</div>
+			</div>
+		</div>
+		
+			<div class="navbar navbar-fixed-bottom" id="strnav">
+				<div class="navbar-inner" style="padding-top:0px;">
+				<!--Filter Side of Street-->
+				
+					<span class="btn-group streetSide" style="float:left; padding-top:7px" data-toggle="buttons-radio">
+						<button id="btnAll" class="btn btn-large"><strong>All</strong></button>
+						<button id="btnEven"class="btn btn-large"><strong>Even</strong></button>
+						<button id="btnOdd"class="btn btn-large"><strong>Odd</strong></button>
+					</span>
+					<button class="btn btn-navbar pull-right" id="btnAddNew"><i class="icon-plus"></i></button>
+
+				</div>
+			</div>
+			
+			<div id="streetSelectView">
+				<table class="table navtable" id="streetList">
+					<tr><td>Loading Streets...</td></tr>
+				</table>
+			</div>
+			<div id="blockSelectView">
+				<table class="table navtable" id="blockList">
+					<tr><td>Loading Blocks...</td></tr>
+				</table>
+			</div>
+			
+			<div id="mainlist" class="section">
+				<table id="tbl" class="table formtable">
+					<tbody id="mainlistTemplate">
+					</tbody>
+				</table>
+			</div>
+
+			<div id="multilist" class="section">
+				<table id="mltbl" class="table formtable">
+					<tbody id="multilistTemplate">
+					</tbody>
+				</table>
+			</div>
+			<div id="taxonomy1">
+				<table class="table taxonomy" id="OrgType">
+					<tr><td>Loading Types...</td></tr>
+				</table>
+				
+			</div>
+			<div id="taxonomy2">
+				<table class="table taxonomy" id="OrgTypeCombined">
+					<tr><td>Loading...</td></tr>
+				</table>
+				
+			</div>
+		<div id="overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;z-index:3000;opacity:.75;background-color:#000;color:#fff;text-shadow:#000 2px 2px 3px;text-align:center;padding-top:30%;font-size:24px;font-weight:bold">Loading Camera...
+		</div>
+		
+		
+			<div id="addPhotoBtn" style="text-align:center; padding-top:5px"><a class="btn btn-large btn-success" id="addPhotoBtn"><i class="icon-camera icon-white"></i> Add Photo</a></div>
+			<div id="frmEdit" class="dlg ui-dialog ui-widget ui-widget-content ui-corner-all section">
+				<span class="ui-icon ui-icon-closethick"></span>
+				<form method="POST" action="#" onSubmit="return false">
+					<input name="CaseID" type="hidden" />
+					<input name="Mode" type="hidden" />
+					<input name="OrgType" type="hidden"/>
+					<input name="OrgTypeCombined" type="hidden" />
+					<table class="formtable edit" align="center">
+						<!--Name-->
+						<tr>
+							<td class="row-header">Name<br></td>
+							<td>
+								<input class="tap" placeholder="Name" name="OrgName" type="text"/>
+							</td>
+							<td class="utility"><i class="icon-chevron-right icon-white" style="visibility:hidden"></i> <a class="btn unsure dkname toggle" style="line-height:40px"data-toggle="button">Unsure</a></td>
+						</tr>
+						<tr>
+							<td class="row-header combined">Category</td>
+							<td class="combined"><span class="OrgType" >5 Category Name</span></td>
+							<td class="combined"><i class="icon-chevron-right icon-white"></i> <a class="btn unsure dktype toggle" style="line-height:40px" data-toggle="button">Unsure</a></td>
+						</tr>
+						<tr>
+							<td class="row-header combined"></td>
+							<td class="combined"><span class="OrgTypeCombined" >5.04 Sub</span></td>
+							<td class="combined utility"><i class="icon-chevron-right icon-white"></i></td>
+						</tr>
+						
+						<tr id="OrgTypeOther">
+							<td class="row-header"> </td>
+							<td class="input-append input-prepend" colspan="2">
+									<input placeholder="Enter a custom type" class="tap" type="text" name="OrgTypeOther"/>
+							</td>
+						</tr>
+						
+
+				
+						<tr>
+							<td class="row-header combined" style="border-top:1px solid #aaa">Address</td>
+							<td class="combined" style="border-top:1px solid #aaa">
+								<input placeholder="Addr #" class="tap" type="text" name="Addnum" />
+							</td>
+							<td class="combined utility" style="border-top:1px solid #aaa">
+								<input class="tap" placeholder="Fraction" type="text" name="Fraction"/>
+							</td>
+							
+						</tr>
+						<tr>
+							<td class="row-header combined"></td>
+							<td class="combined" colspan="2">
+								<input class="tap" placeholder="Street" type="text" name="Street" />
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="row-header"></td>
+							<td><input placeholder="Unit" type="text" name="Unit" class="tap"/></td>
+							<td class="utility"><i class="icon-chevron-right icon-white" style="visibility:hidden"></i> <a class="btn unsure dkaddress toggle" style="line-height:40px" data-toggle="button">Unsure</a></td>
+						</tr>
+						<tr>
+							<td class="row-header">Status</td>
+							<td class="input-prepend" colspan="2">
+								<span style="display:inline-block;" data-toggle="buttons-radio" style="text-align:right">
+									<a style="line-height:40px;width:100px;text-align:left !important;" class="btn btn-large dispUntchd"><i class="icon-eye-close"></i> Not Visited</a>
+									<a style="line-height:40px;width:60px;text-align:left !important;"  class="btn btn-large dispOK"><i class="icon-ok"></i> OK</a>
+									<a style="line-height:40px;width:70px;text-align:left !important;"  class="btn btn-large dispGone"><i class="icon-ban-circle"></i> Gone</a>
+									<a style="line-height:40px;width:90px;text-align:left !important;"  class="btn btn-large unsure dkopen"><i class="icon-question-sign"></i> Unsure</a>
+									<a style="line-height:40px;width:90px;text-align:left !important;"  class="btn btn-large dispDup"><i class="icon-exclamation-sign"></i> Duplicate</a>
+									<a style="line-height:40px;width:70px;text-align:left !important;"  class="btn btn-large dispOOS"><i class="icon-exclamation-sign"></i> OOS</a>
+									
+								</span>
+							</td>
+						</tr>
+						
+						<tr>
+							<td class="row-header">Phone</td>
+							<td colspan="1">
+								<input class="tap" placeholder="Phone" name="Phone" type="tel"/></td><td style="text-align:right;padding-right:5px">
+								<a id="phoneBtn"><i class="icon-circle-arrow-right icon-white icon-grey"></i></a>
+							</td>
+
+							
+						</tr>
+						<tr>
+							<td class="row-header">Email</td>
+							<td colspan="1">
+								<input class="tap" placeholder="Email" name="Email" type="email" /></td><td style="text-align:right;padding-right:5px">
+								<a id="emailBtn"><i class="icon-circle-arrow-right icon-white icon-grey"></i></a>
+								
+							</td>
+						</tr>
+						<tr>
+							<td class="row-header">Website</td>
+							<td colspan="1">
+								<input class="tap" placeholder="Website" name="URL" type="url"/></td><td style="text-align:right;padding-right:5px">
+								<a id="URLBtn" target="_blank"><i class="icon-circle-arrow-right icon-white icon-grey"></i></a>
+							</td>
+						</tr>
+						<tr>
+							<td class="row-header">Leader</td>
+							<td colspan="2">
+								<input class="tap" placeholder="Leader" name="Leader" type="text"/>
+							</td>
+						</tr>
+						<tr>
+							<td class="row-header">Private Residence</td>
+							<td colspan="2">
+								<input type="checkbox" style="display:none" name="Private" value="Yes"/>
+								<span class="btn-group" id="privateResidence">
+									<a class="btn btn-large btn-primary no" style="line-height:35px;width:55px;">NO</a><a class="btn btn-large yes" style="line-height:35px;width:55px">YES</a>
+								</span>
+							</td>
+						</tr>
+						<tr class="conditionalPrivate">
+							<td class="row-header">Permission to Post</td>
+							<td colspan="2">
+								<span class="btn-group" id="permissionToPost">
+									<a class="btn btn-large btn-primary no" style="line-height:35px;width:55px">NO</a><a class="btn btn-large yes" style="line-height:35px;width:55px">YES</a>
+								</span>
+								<input type="checkbox" name="post_it" value="Yes" style="display:none">
+								</span>
+							</td>
+						</tr>
+						<tr>
+							<td class="row-header">Notes</td>
+							<td colspan="2" style="text-align:center;padding:5px !important">
+								<textarea placeholder="Notes" name="Notes" rows="5" cols="30" style="width:95%;color:#fff" class="rounded"></textarea>
+								<span class="cancelbuttn"> </span>
+							</td>
+						</tr>
+						
+					</table>
+				</form>
+
+			</div>
+			
+		<div id="caseidbx" class="dlg ui-dialog ui-widget ui-widget-content ui-corner-all section">
+			<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix"><span class="ui-dialog-title">Search</span><a href="#" class="ui-dialog-titlebar-close ui-corner-all" role="button"><span class="ui-icon ui-icon-closethick">close</span></a></div>
+			<div style="margin-left:1em;">CaseId: <input type='text' name='caseid'></div>
+			<div class="ui-dialog-buttonpane ui-widget-content"><div><button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false"><span class="ui-button-text">Search</span></button><button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only cancelbuttn" role="button" aria-disabled="false"><span class="ui-button-text">Cancel</span></button></div></div>
+		</div>
+		<div id="cameraUpload">
+			<h2>Camera Sync</h2>
+			
+			<h2>GPS reporting</h2>
+			
+			<button id='btnDebug'>Debug</button>
+			<div id="debug">
+				<button id="watch">Toggle Watch</button>
+				<button id='clearWatch'>Clear</button>
+				<ul id='cur_position'></ul>
+				<button id='wgps'>WipeGPS</button>
+			</div>
+			
+			
+		</div>
+		<script type="text/javascript" src="bootstrap/js/bootstrap.js"></script>
+		<script type="text/javascript" src="js/titleCaps.js"></script>
+		<script type="text/javascript" src="js/jsrender.js"></script>
+		<script type="text/javascript" src="hhapp.js"></script>
+	</body>
+</html>

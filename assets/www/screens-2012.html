@@ -1,0 +1,945 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta name="viewport" content="width=330, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>SSH Handheld Audit v4.0.0</title>
+		<script src="streetmap33.js"></script>
+		<script src="jquery-1.6.4.min.js"></script>
+		<link type="text/css" href="css/ui-lightness/jquery-ui-1.8.5.custom.css" rel="Stylesheet" />
+
+		<style type="text/css">
+			/*<![CDATA[*/
+			#header, #strnav, #login { margin-bottom: 4px; border-bottom: 1px dashed #CCC;}
+			#frmEdit {  }
+			#header { font-weight: bold; }
+			#loggedin, #frmEdit, #frmNew, #multilist,#caseidbx {display:none;}
+			.loading { height: 100px; width: 100px; background: url(ajax-loader.gif); display:none;}
+			#header a,#muaddr {cursor: pointer;}
+			.ui-widget-overlay {z-index:50;}
+			.pending { background: transparent url(pending.gif) no-repeat; text-indent:20px;}
+			#tbl, #mltbl {border-collapse: collapse;}
+			#tbl tbody tr, #mltbl tbody tr { border-bottom: 1px solid gray;}
+			#tbl tbody tr td, #mltbl tbody tr td, #tbl thead th, #mltbl thead th { padding: 0 1em 0 1em;}
+			#tbl thead th, #mltbl thead th { text-align: left; }
+			#loginmsg {color:red;font-weight:bold;text-align:center;}
+			#btngroup { list-style-type: none; display:inline-block; margin: 0; padding: 0; }
+			#btngroup li { float:left; padding: 0 .5em 0 .5em; border: 1px solid #ccc; background: #eee; font-weight: bold; color: #000; cursor: pointer;  text-shadow: 0 1px 1px #f6f6f6; text-decoration: none; background-image: -moz-linear-gradient(top, #fdfdfd, #eeeeee); background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #fdfdfd),color-stop(1, #eeeeee));   -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#fdfdfd', EndColorStr='#eeeeee')";}
+			#btngroup li.btnActive { border: 1px solid #222; background: #333333; font-weight: bold; color: #fff; cursor: pointer;  text-shadow: 0 -1px 1px #000; text-decoration: none; background-image: -moz-linear-gradient(top, #555555, #333333); background-image: -webkit-gradient(linear,left top,left bottom,color-stop(0, #555555),color-stop(1, #333333));   -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorStr='#555555', EndColorStr='#333333')";}
+			.ui-autocomplete { max-height: 100px; overflow-y: auto; }
+
+			#caseidbx { width:280px; }
+			/* OVERRIDES */
+			.ui-dialog {
+				position: relative; overflow:auto; width:auto;
+			}
+
+			/*]]>*/
+		</style><!-- scripts: jquery, taffydb -->
+
+		<script type="text/javascript" src="js/jquery-ui-1.8.5.custom.min.js"></script>
+		<script type="text/javascript" src="jquery.corner.js"></script>
+		<script>var t=[];</script>
+		<script src="orgtypes.js"></script>
+	</head>
+	<body>
+		<div id="login">
+		<h3>Login</h3>
+			<form action="#" method="post" onSubmit="return false;">
+				Username: <input type="text" name="username" /> Password: <input type="text" name="passwd" />
+				<select name="community">
+					<option>Armour Square</option>
+					<option>Auburn Gresham</option>
+					<option>Avalon Park</option>
+					<option>Beverly</option>
+					<option>Bridgeport</option>
+					<option>Burnside</option>
+					<option>Calumet Heights</option>
+					<option>Chatham</option>
+					<option>Chicago Lawn</option>
+					<option>Douglas</option>
+					<option>East Side</option>
+					<option>Englewood</option>
+					<option>Fuller Park</option>
+					<option>Grand Boulevard</option>
+					<option>Greater Grand Crossing</option>
+					<option>Hegewisch</option>
+					<option>Hyde Park</option>
+					<option>Kenwood</option>
+					<option>Mckinley Park</option>
+					<option>Morgan Park</option>
+					<option>Near South Side</option>
+					<option>New City</option>
+					<option>Oakland</option>
+					<option>Pullman</option>
+					<option>Riverdale</option>
+					<option>Roseland</option>
+					<option>South Chicago</option>
+					<option>South Deering</option>
+					<option>South Shore</option>
+					<option>Washington Heights</option>
+					<option>Washington Park</option>
+					<option>West Englewood</option>
+					<option>West Pullman</option>
+					<option>Woodlawn</option>
+				</select>
+				<div id="loginmsg"></div>
+				<button id="btnLogin">Login</button><input type="reset" value="Reset" />
+			</form>
+			<div class="loading"></div>
+		</div>
+		<div id="loggedin">
+			<div id="header">
+				<span class="username"></span> <span class="total"></span> <a style="float:right;" class="community">[[COMMUNITY]]</a>
+			</div>
+			<div id="strnav">
+				<button id="btnAddNew">+Add</button> <button id="btnCaseId"><img src="icon-search-black.png" style="width:10px;"/>CaseId</button>
+				<ul id="btngroup"><li style="border-top-left-radius: 10px 10px; border-bottom-left-radius: 10px 10px; " id="btnEven">Even</li><li id="btnOdd">Odd</li><li style="border-top-right-radius: 10px 10px; border-bottom-right-radius: 10px 10px; " id="btnAll" >All</li></ul>
+				<select name="blocknums" id="blocknums"></select> <select name="streets" id="streets"></select>
+				<span id="pending"></span>
+			</div>
+			<div id="mainlist" class="section">
+				<table id="tbl">
+					<thead>
+						<tr>
+							<th><!-- ajax status icon -->Number</th>
+							<th>Org Name</th>
+							<th>Status</th>
+						</tr>
+					</thead>
+					<tbody id="mainlistTemplate">
+						<tr><td></td><td></td><td></td></tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div id="multilist" style="outline-width: 0px; outline-style: initial; outline-color: initial; height: auto; width:95%;" class="ui-dialog ui-widget ui-widget-content ui-corner-all section">
+				<!-- for use in multi-unit buildings -->
+				<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix">
+					<span class="ui-dialog-title" >
+						<div id="muaddr">
+							<!-- address of mu building -->
+						</div>
+					</span><a href="#" class="ui-dialog-titlebar-close ui-corner-all" role="button"><span class="ui-icon ui-icon-closethick">close</span></a>
+				</div>
+				<div style="width: auto; min-height: 15px; height: auto; display: block; " class="ui-dialog-content ui-widget-content">
+
+					<table id="mltbl">
+						<thead>
+							<tr>
+								<th><!-- ajax status icon -->Unit</th>
+								<th>Org Name</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody id="multilistTemplate">
+							<tr><td></td><td></td><td></td></tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div id="frmEdit" class="dlg ui-dialog ui-widget ui-widget-content ui-corner-all section">
+			<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix"><span class="ui-dialog-title" id="ui-dialog-title-frmEdit">&nbsp;</span><a href="#" class="ui-dialog-titlebar-close ui-corner-all" role="button"><span class="ui-icon ui-icon-closethick">close</span></a></div>
+			<form method="POST" action="#" onSubmit="return false">
+				<input name="CaseID" type="hidden" />
+				<div id="caseidfbx"></div>
+				<input name="Mode" type="hidden" />
+				<label for="OrgName">Org Name</label> <input name="OrgName" type="text" size="30"/><br/>
+				<select name="OrgType"></select> <br/>
+				<select name="OrgTypeCombined"></select>
+				<input type="text" name="OrgTypeOther" /><br/>
+				Address (num,fraction,street,unit)<br/>
+				<input type="text" name="Addnum" size="5"/> <input type="text" name="Fraction" size="3"/> <input type="text" name="Street" size="20"/> <input type="text" name="Unit" size="10"/><br/>
+				<label for="Phone">Phone</label> <input type="text" name="Phone" /><br/>
+				<label for="Email">Email</label> <input type="text" name="Email" /><br/>
+				<label for="URL">Website</label> <input type="text" name="URL" /><br/>
+				<label for="Leader">Leader Name</label> <input type="text" name="Leader" /><br/>
+				<input type="checkbox" name="Private" value="Yes"/> Private<br/>
+				<div class="conditionalPrivate">
+					Display: <input type="checkbox" name="post_it" value="Yes"> Permission to Post
+				</div>
+				Notes
+				<textarea name="Notes" rows="5" cols="30"></textarea><br/>
+				Status
+				<select name="Disposition">
+					<option>Untchd</option>
+					<option>Okay</option>
+					<option>Unsure</option>
+					<option>Gone</option>
+					<option>Dup</option>
+					<option>OOS</option>
+				</select><br/>
+				<div class="ifUnsureDisp">
+					<input type="checkbox" name="DKOpen" value="Yes"/> DKOpen<br/>
+					<input type="checkbox" name="DKName" value="Yes"/> DKName<br/>
+					<input type="checkbox" name="DKAddress" value="Yes"/> DKAddress<br/>
+					<input type="checkbox" name="DKType" value="Yes"/> DKType
+				</div>
+				<button class="wac ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false"><span class="ui-button-text wac">Code</span></button>
+			</form>
+			<div class="ui-dialog-buttonpane ui-widget-content"><div><button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false"><span class="ui-button-text">Save</span></button><button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only cancelbuttn" role="button" aria-disabled="false"><span class="ui-button-text">Cancel</span></button></div></div>
+		</div>
+		<div id='caseidbx' class="dlg ui-dialog ui-widget ui-widget-content ui-corner-all section">
+			<div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix"><span class="ui-dialog-title">Search</span><a href="#" class="ui-dialog-titlebar-close ui-corner-all" role="button"><span class="ui-icon ui-icon-closethick">close</span></a></div>
+			<div style="margin-left:1em;">CaseId: <input type='text' name='caseid'></div>
+			<div class="ui-dialog-buttonpane ui-widget-content"><div><button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button" aria-disabled="false"><span class="ui-button-text">Search</span></button><button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only cancelbuttn" role="button" aria-disabled="false"><span class="ui-button-text">Cancel</span></button></div></div>
+		</div>
+<script type="text/javascript">
+	//<![CDATA[
+	$.fn.serializeObject = function() {
+		var o = {};
+		var a = this.serializeArray();
+		$.each(a, function() {
+			if (o[this.name]) {
+				if (!o[this.name].push) {
+					o[this.name] = [o[this.name]];
+				}
+				o[this.name].push(this.value || '');
+			} else {
+				o[this.name] = this.value || '';
+			}
+		});
+		return o;
+	};
+
+	var blank={"Mode": "", "OrgName": "", "OrgType": "", "OrgTypeCombined": "", "OrgTypeOther": "", "Addnum": "", "Fraction": "", "Street": "", "Unit": "", "city": "Chicago", "state": "IL", "Phone": "", "Email": "", "URL": "", "Leader": "", "Private": "", "post_it": "", "Notes": "", "Disposition": "", "DKOpen": "", "DKName": "", "DKAddress": "", "DKType": ""};
+	function procForm(f){
+		var $f=$(f);
+		$("select[name='OrgType']",$f).empty();
+		for(var i in t){
+			$("select[name='OrgType']",$f).append($("<option>").val(t[i][0]).html(t[i][0] +" "+t[i][1]));
+		}
+		$("select[name='OrgType']",$f).change(function(){
+			var v=$(this).val();
+			var temp=t[v][2];
+			//load up subtype
+			$("select[name='OrgTypeCombined'] option",$f).remove();
+			for(i in temp){
+				$("select[name='OrgTypeCombined']",$f).append($("<option>").val(sprintf("%0.02f",temp[i][0])).html(sprintf("%0.02f",temp[i][0]) +" "+temp[i][1]));
+			}
+			$("select[name='OrgTypeCombined']",$f).change();
+		});
+		$("select[name='OrgTypeCombined']",$f).change(function(){
+			//IF IS FINAL OPTION ---> OTHER BOX
+			if($("select[name='OrgTypeCombined'] option:selected",$f).text().indexOf("Other")>=0){
+				$("input[name='OrgTypeOther']",$f).show();
+			}else{
+				$("input[name='OrgTypeOther']",$f).hide();
+			}
+		});
+
+
+		$("[name='Disposition']",$f).change(function(){
+			if($("option:selected", this).text()=="Unsure"){
+				$(".ifUnsureDisp",$f).show();
+			}else{
+				$(".ifUnsureDisp",$f).hide();
+			}
+
+		});
+		$("[name='Private']",$f).change(function(){
+			if($("[name='Private']",$f).is(":checked")){
+				$(".conditionalPrivate",$f).show();
+			}else{
+				$(".conditionalPrivate",$f).hide();
+			}
+
+		});
+
+
+		// PROCESS
+		$("[name='OrgType']",$f).change();
+		$("[name='Disposition'], [name='Private']",$f).change();
+	}
+
+	$(document).ready(function(){
+		$("#login").append($("<strong>").text(document.title));
+		procForm("#frmEdit");
+
+		// Wire buttons
+		$("#btnLogin").click(function(){
+			//show loading
+			$("#login .loading").show();
+			$("#loginmsg").text("");
+			username=$("#login input[name='username']").val();
+			community=$("#login select[name='community']").val();
+			var passwd=$("#login input[name='passwd']").val();
+			$.ajax({
+				type: 'POST',
+				url: "server-2012.php",
+				//cache: false,
+				data: {"op":"login","username":username, "passwd":passwd, "community":community},
+				success: function(data){
+					if(typeof(data)=="string"){
+						// is an error
+						$("#login .loading").hide();
+						$("#loginmsg").text(data);
+						return;
+					}
+					buildings=data[0];
+					cases=data[1];
+					totalCases=0;
+					for(i in cases){ ++totalCases;}
+					// data loaded ... populate display
+					username=$("#login input[name='username']").val();
+					$("#login .loading").hide();
+					$("#login").hide();
+					$("#loggedin").show();
+					populateDisplay();
+				},
+				dataType: "json"
+			});
+		});
+
+		$("#caseidbx button:eq(0)").click(function(){
+			try {
+				var c=cases[$("#caseidbx input").val()];
+				$("#streets").val(c['Street']).change();
+				$("#blocknums").val(Math.floor(c['Addnum']/100)*100).change();
+				showEdit(c['CaseID']);
+				$("#caseidbx").hide();
+			}catch(e){
+				$("#caseidbx input").addClass( "ui-state-error" );
+			}
+		});
+		$("#btnCaseId").click(function(){
+			//prompt for caseid
+			$(".section").hide();
+			$("#caseidbx").show();
+		});
+		$("#btnEven").click(function(){$("#btngroup li").removeClass("btnActive");$(this).addClass("btnActive");$("tr.eoo").hide();$("tr.eoe").show();});
+		$("#btnOdd").click(function(){$("#btngroup li").removeClass("btnActive");$(this).addClass("btnActive");$("tr.eoe").hide();$("tr.eoo").show();});
+		$("#btnAll").click(function(){$("#btngroup li").removeClass("btnActive");$(this).addClass("btnActive");$("tr.eoe").show();$("tr.eoo").show();}).click();
+		$("#btnAddNew").click(function(){
+			newForm.open();
+		});
+
+		$("#header a").live("click",showLogin);
+
+		$("tr.multi").live("click",function(e){multiTable($("td:first",this).text())});
+		$("#mainlist #tbl tbody:not([id=mainlistTemplate]) tr:not([class*='multi'])").live("click",function(e){
+			showEdit($(this).attr("id").substr(1));
+		});
+		$("#multilist #mltbl tbody:not([id=multilistTemplate]) tr").live("click",function(e){
+			showEdit($(this).attr("id").substr(1));
+		});
+		$('button.wac').live('click',function(){$("span.wac",this).text(cg($("#frmEdit input[name='CaseID']").val()))});
+
+		//make a "new form"
+		$("#frmEdit").clone().attr('id','frmNew').appendTo($("body"));
+		$("#frmNew .wac").remove();
+		procForm("#frmNew");
+
+		$("#frmNew .ui-dialog-title").text('Create New Case');
+		$("#frmNew .ui-dialog-buttonpane button:eq(0) span").text("Create").click(function(){
+			newForm.buttons.Create();
+			$("#frmNew").hide();
+			$currentSection.show();
+		});
+
+
+		$("#frmEdit .ui-dialog-title").text('Edit Case');
+		$("#frmEdit .ui-dialog-buttonpane button:eq(0) span").click(function(){
+			editForm.buttons.Save();
+			$("#frmEdit").hide();
+			$currentSection.show();
+		});
+
+
+		newForm={
+			open: function(){
+				var f=$("#frmNew form");
+				f[0].reset();
+				$(".section").hide();
+				$("[name='Street']",f).val(cs);
+				$("[name='Addnum']",f).val(cb);
+				$("#frmNew").show();
+			},
+			buttons: {
+				"Create": function(){
+					updatePending(1);
+					var frmdata=$("#frmNew form").serialize();
+
+					$.ajax({
+						type: 'POST',
+						url: "server-2012.php?op=create",
+						data: frmdata,
+						success: function(data){
+							var caseid="" + data['CaseID'];
+							var c=cases[caseid]=data;
+							
+							var ns=c['Street'];
+							var na=c['Addnum'];
+							var nb=Math.floor(na/100)*100;
+							updatePending(-1);
+
+							$("#header").find(".total").text("(" + ++totalCases + " total cases)");
+							if(buildings[ns]){
+								if(buildings[ns][nb]){
+									if(buildings[ns][nb][na]){
+										var items=buildings[ns][nb][na];
+										if(typeof(items)!="string"){
+											buildings[ns][nb][na].push(caseid);
+										}else{
+											buildings[ns][nb][na]=[items,caseid];
+										}
+										// if multi rendered ...
+
+										// MAKE MULTI
+										//
+										// FINISH THIS
+										var o=$("#s-"+ns.replace(/ /g,"_")+"-"+na);
+										if(o.length){
+											o.append("<tr id='i" + caseid + "' class='unit'><td>"+c['Unit']+"</td><td>" + c['OrgName'] + "</td><td>" + c["Disposition"] + "</td></tr>");
+										}
+										// we just made a new multi ... on mainlist
+										var m=buildings[ns][nb][na];
+										
+										var o=$("#m-"+ns.replace(/ /g,"_")+"-"+nb);
+										if(o.length){
+											var eo=parseInt(na)%2?"eoo":"eoe";
+											// remove old and replace
+											var row=o.find("tr").find("td:eq(0):contains(" + na +")").parent();
+											row.replaceWith($("<tr class='multi " + eo +"'><td>"+na+"</td><td><em>MULTIPLE (" +m.length + " units)</em></td><td></td></tr>"));
+											
+										}
+									
+									}else{
+										// new address on existing block
+										buildings[ns][nb][na]=caseid;
+										var o=$("#m-"+ns.replace(/ /g,"_")+"-"+nb);
+										if(o.length){
+											// already made the panel so just add as item
+											var eo=parseInt(na)%2?"eoo":"eoe";
+											o.append("<tr class='" + eo + "' id='i" + caseid + "'><td>"+na+"</td><td>" + c['OrgName'] + "</td><td>" + c["Disposition"] + "</td></tr>");
+										}
+									}
+								}else{
+									//no such block but we do have a street
+									buildings[ns][nb]={};
+									buildings[ns][nb][na]=caseid;
+
+									//if there is no such block, then the next time it is rendered, this will be added fine
+									$("#blocknums").append($("<option>").text(nb));
+								}
+
+							}else{
+								// no such street
+								buildings[ns]={};
+								buildings[ns][nb]={};
+								buildings[ns][nb][na]=caseid;
+								//need to remake the street
+								$("#streets").append($("<option>").text(ns));
+								// new street means no prior data, so nothing special to do
+							}
+							renderAddr(ns,nb,na);
+						},
+						error: function(xhr){
+							console.log(xhr);
+							alert("Something wrong happened while trying to create the record.  Please contact the Survey Lab immediately!");
+						},
+						dataType: "json"
+					});
+				}
+			}
+		};
+
+		editForm={
+			buttons: {
+				"Save": function(){
+					var caseid=$("#frmEdit input[name='CaseID']").val();
+					$("#i"+caseid+" td:first").addClass("pending");
+					updatePending(1);
+					// add to queue for recovery???
+					//var frmdata=$("#frmEdit form").serialize();
+
+					// clear DK fields if not Unsure Disposition
+					if($("#frmEdit form [name='Disposition']").val()!="Unsure"){
+						var f=["DKOpen", "DKName", "DKAddress", "DKType"];
+						for(i in f){
+							$("#frmEdit form [name='" +f[i] +"']").val([null]);
+						}
+					}
+					var frmdata=$.param($.extend({},blank,$("#frmEdit form").serializeObject()));
+					console.log(frmdata);
+					//inProg["i"+caseid]=1;
+
+					// if disp or orgname has changed, show italic mod
+					var f=['Addnum','OrgName','Disposition'];
+					for (i in f){
+						if($("#frmEdit form [name='" +f[i] +"']").val()!=cases[caseid][f[i]]){
+							$("#i"+caseid+" td:eq("+i+")").html("<i>"+$("#frmEdit form[name='"+f[i]+"']").val()+"</i>");
+						}
+					}
+
+
+
+					$.ajax({
+						type: 'POST',
+						url: "server-2012.php?op=save",
+						//cache: false,
+						data: frmdata,
+						success: function(data){
+							console.log(data);
+							var caseid=""+data['CaseID'];
+							var c=cases[caseid];
+							updatePending(-1);
+							//inProg["i"+caseid]=null;
+							$("#i"+caseid+" td:first").removeClass("pending");
+							var ns=data['Street'];
+							var na=data['Addnum'];
+							var nb=Math.floor(na/100)*100;
+							var os=c['Street'];
+							var oa=c['Addnum'];
+							var ob=Math.floor(oa/100)*100;
+							var oe=buildings[os][ob][oa];
+							
+							if(data['Street']!=c['Street'] || data['Addnum']!=c['Addnum']){
+								// street or address changed
+								// need to remap table
+								//  NEED TO remove old from buildings db
+								if(typeof(oe)!="string"){
+									// is a unit
+									// find and splice it out
+									var position=buildings[os][ob][oa].indexOf(caseid);
+									buildings[os][ob][oa].splice(position,1);
+
+								}else{
+									// is a singleton so remove entry.
+									delete buildings[os][ob][oa];
+								}
+								renderAddr(os,ob,oa);
+								
+								if(buildings[ns]){
+									if(buildings[ns][nb]){
+										if(buildings[ns][nb][na]){
+											var items=buildings[ns][nb][na];
+											if(typeof(items)!="string"){
+												buildings[ns][nb][na].push(caseid);
+											}else{
+												buildings[ns][nb][na]=[items,caseid];
+											}
+											$("#i"+caseid).remove();
+											c=cases[caseid]=data;
+											var o=$("#s-"+ns.replace(/ /g,"_")+"-"+na);
+											if(o.length){
+												o.append("<tr id='i" + caseid + "' class='unit'><td>"+c['Unit']+"</td><td>" + c['OrgName'] + "</td><td>" + c["Disposition"] + "</td></tr>");
+											}
+											// we just made a new multi ... on mainlist
+											var m=buildings[ns][nb][na];
+											
+											var o=$("#m-"+ns.replace(/ /g,"_")+"-"+nb);
+											if(o.length){
+												var eo=parseInt(na)%2?"eoo":"eoe";
+												// remove old and replace
+												var row=o.find("tr").find("td:eq(0):contains(" + na +")").parent();
+												row.replaceWith($("<tr class='multi " + eo +"'><td>"+na+"</td><td><em>MULTIPLE (" +m.length + " units)</em></td><td></td></tr>"));
+											}
+										}else{
+											// new address on existing block
+											$("#i"+caseid).remove();
+											buildings[ns][nb][na]=caseid;
+											var o=$("#m-"+ns.replace(/ /g,"_")+"-"+nb);
+											if(o.length){
+												// already made the panel so just add as item
+												var eo=parseInt(na)%2?"eoo":"eoe";
+												var c=cases[caseid]=data;
+												o.append("<tr class='" + eo + "' id='i" + caseid + "'><td>"+na+"</td><td>" + c['OrgName'] + "</td><td>" + c["Disposition"] + "</td></tr>");
+											}
+										}
+									}else{
+										//no such block
+										buildings[ns][nb]={};
+										buildings[ns][nb][na]=caseid;
+										$("#i"+caseid).remove();
+										cases[caseid]=data;
+										//if there is no such block, then the next time it is rendered, this will be added fine
+										$("#blocknums").append($("<option>").text(nb));
+									}
+								}else{
+									buildings[ns]={};
+									buildings[ns][nb]={};
+									buildings[ns][nb][na]=caseid;
+									//need to remake the street
+									$("#i"+caseid).remove();
+									$("#streets").append($("<option>").text(ns));
+									// new street means no prior data, so nothing special to do
+									cases[caseid]=data;
+								}
+
+							}else{
+
+								// we are done NO CHANGES TO ADDRESS, just update
+								c=cases[caseid]=data;
+								$("#i"+caseid).html("<td>"+($("#i"+caseid).hasClass("unit")?c['Unit']:c['Addnum'])+"</td><td>" + c['OrgName'] + "</td><td>" + c["Disposition"] + "</td>");
+							}
+renderAddr(ns,nb,na);
+						},
+						error: function(xhr){
+							console.log(xhr);
+							debug=xhr;
+							alert("Something wrong happened while trying to save the record.  Please contact the Survey Lab immediately!");
+						},
+						dataType: "json"
+					});
+				}
+			}
+		};
+
+		$("#multilist a span, #muaddr").click(function(){$("#multilist,#mainlist").toggle(); $currentSection=$("#mainlist");});
+
+		$("span.ui-icon-closethick, .cancelbuttn").click(function(){ $(this).parents(".section").hide(); $currentSection.show(); });
+	});
+
+	var buildings=null;
+	var cases=null;
+	var username=null;
+	var community=null;
+	var cs=null;
+	var cb=null;
+	var totalCases=0;
+	var $editForm=null;
+	var pendingUpdates=0;
+	var inProg=[];
+
+	var debug="";
+
+	function populateDisplay(){
+		// header
+		//$("#header").html( </a> (" + totalCases+ " total cases)");
+		var $h=$("#header");
+		$h.find(".username").text("[" + username + "]");
+		$h.find(".total").text("(" + totalCases + " total cases)");
+		$h.find(".community").text("[" + community + "]");
+		//erase old table
+		$("#mainlist #tbl tbody:not([id=mainlistTemplate])").remove();
+		$("#multilist #mltbl tbody:not([id=multilistTemplate])").remove();
+
+		//fill streets
+		$("#streets option").remove();
+		for (i in buildings){
+			$("#streets").append($("<option>").text(i));
+		}
+		//blocknums
+		$("#blocknums").change(function(){
+			$(".dlg").hide();
+			cb=$(this).val();
+			updateTable();
+		});
+
+		//link blocks to streets
+		$("#streets").change(function(){
+			$(".dlg").hide();
+			var v=$(this).val();
+			var temp=buildings[v];
+			//load up subtype
+			$("#blocknums option").remove();
+			var ta=[];
+			for(i in temp){ ta.push(i); } ta.sort(numSort);
+			for(i in ta){
+				$("#blocknums").append($("<option>").text(ta[i]));
+			}
+			cs=v;
+			$("#blocknums").change();
+		}).change();
+
+		// make valid street dropdown for edit/new
+
+		$("#frmNew [name='Street'], #frmEdit [name='Street']").autocomplete({
+			source: streetmap[community]
+		}).blur(function (){
+			if(streetmap[community].indexOf($(this).val())==-1){
+				$(this).val("");
+			}
+
+		});
+	}
+
+	function renderAddr(s,b,a){
+		var m=buildings[s][b][a];
+		var eo=parseInt(i)%2?"eoo":"eoe";
+		var o=$("#m-"+s.replace(/ /g,"_")+"-"+b);
+		var newRow=null;
+		var isMulti=false;
+		var so=null;
+		
+		if (m===undefined){
+			o.find("tr").find("td:eq(0):contains(" + a +")").parent().remove();
+			return;
+		}
+		
+		if(typeof(m)!="string"){
+			isMulti=true;
+			//multiunit, so make both
+			// main
+			newRow=$("<tr class='multi " + eo +"'><td>"+a+"</td><td><em>MULTIPLE (" +m.length + " units)</em></td><td></td></tr>")
+			
+			//unit
+			so=$("#s-"+s.replace(/ /g,"_")+"-"+a);
+			
+			if(so.length){
+				so.children().remove();
+			}else{
+				so=$("#multilistTemplate").clone().attr("id","s-"+s.replace(/ /g,"_")+"-"+a).appendTo("#mltbl");
+			}
+			
+			m.sort(unitSort);
+			for (i in m){
+				var c=cases[m[i]];
+				so.append("<tr id='i" + m[i] + "' class='unit'><td>"+c['Unit']+"</td><td>" + c['OrgName'] + "</td><td>" + c["Disposition"] + "</td></tr>");
+			}
+		}else{
+			var c=cases[m];
+			newRow=$("<tr class='" + eo + "' id='i" + m + "'><td>"+a+"</td><td>" + c['OrgName'] + "</td><td>" + c["Disposition"] + "</td></tr>");
+		}
+		
+		// does this already exist?
+		var row=o.find("tr").find("td:eq(0):contains(" + a +")").parent();
+		
+		if(row.length){
+			// exists ...
+			row.replaceWith(newRow);
+		}else{
+			//insert as new
+			o.append(newRow);
+		}
+		
+		if(inProg["i"+m]){
+			$("#i"+m).addClass("pending");
+		}
+	}
+
+
+	function updateTable(){
+		// updates the main listing based on block/street
+
+		$("#mainlist #tbl tbody").hide();
+		$("#mainlist").show();
+		$("#multilist").hide();
+		$currentSection=$("#mainlist");
+
+		var newId="m-"+cs.replace(/ /g,"_")+"-"+cb;
+		if($("#"+newId).length){
+			$("#"+newId).show();
+		}else{
+			var o=$("#mainlistTemplate").clone().attr("id",newId).appendTo("#mainlist #tbl").show();
+
+
+			var trtemplate=o.children().remove();
+			var ta=[];
+			for(i in buildings[cs][cb]){ta.push(i);} ta.sort();
+			for (a in ta){
+				i=ta[a];
+				var m=buildings[cs][cb][i];
+				var eo=parseInt(i)%2?"eoo":"eoe";
+				if(typeof(m)!="string"){
+					//multiunit
+					$("<tr class='multi " + eo +"'><td>"+i+"</td><td><em>MULTIPLE (" +m.length + " units)</em></td><td></td></tr>").appendTo(o);
+				}else{
+					var c=cases[m];
+					o.append("<tr class='" + eo + "' id='i" + m + "'><td>"+i+"</td><td>" + c['OrgName'] + "</td><td>" + c["Disposition"] + "</td></tr>");
+					if(inProg["i"+m]){
+						$("#i"+m).addClass("pending");
+					}
+				}
+
+			}
+		}
+		$(".btnActive").click();
+	}
+	function multiTable(addr){
+		$("#mainlist,#multilist").toggle();
+		$currentSection=$("#multilist");
+		$("#multilist #mltbl tbody").hide();
+		var newId="s-"+cs.replace(/ /g,"_")+"-"+addr;
+		if($("#"+newId).length){
+			$("#"+newId).show();
+		}else{
+			var o=$("#multilistTemplate").clone().attr("id",newId).appendTo("#mltbl").show();
+			o.children().remove();
+			var m=buildings[cs][cb][addr];
+
+
+
+			m.sort(unitSort);
+
+			for (i in m){
+				var c=cases[m[i]];
+				o.append("<tr id='i" + m[i] + "' class='unit'><td>"+c['Unit']+"</td><td>" + c['OrgName'] + "</td><td>" + c["Disposition"] + "</td></tr>");
+
+			}
+		}
+		// populate the muaddr
+		$("#muaddr").html("Units in " + addr + " " + cs);
+	}
+	function showLogin(){
+		$("#loggedin").hide();
+		$("#login").show();
+	}
+	function showEdit(c){
+		$(".section").hide();
+		$("#frmEdit").show();$("#mainlist,#multilist").hide();
+		clearEdit();
+		var d=cases[c];
+		// catch GARBAGE -- undefined types
+		if(parseInt(d['OrgTypeCombined'])==0 || isNaN(parseInt(d['OrgTypeCombined']))){
+			d['OrgTypeCombined']='0';
+		}
+		$("#frmEdit select[name='OrgType']").val(parseInt(d['OrgTypeCombined'])).change();
+		for (i in d){
+			$("#frmEdit [name='"+i+"']").val([d[i]]);
+		}
+		$("#frmEdit #caseidfbx").text(c);
+
+		$('span.wac').text("Web Access Code");
+
+		$("#frmEdit [name='Disposition'], #frmEdit [name='Private'], #frmEdit select[name='OrgTypeCombined']").change();
+	}
+	function clearEdit(){$("#frmEdit form")[0].reset();}
+	function updatePending(ud){pendingUpdates+=ud;$("#pending").text(pendingUpdates?pendingUpdates + " updates pending":"");}
+
+
+	function cg(c){
+		var a="000000"+(c*70039%16777213).toString(16);a=a.slice(-6,a.length);var t=0;for(i in a.split(""))t+=parseInt(a[i],16)*((2*i+1)+2*(Math.floor(i/4)));t%=16;return a+t.toString(16);
+	}
+	function unitSort(a,b){
+		var uA = cases[a].Unit.toLowerCase();
+		var uB = cases[b].Unit.toLowerCase();
+		if (uA < uB) {return -1}
+		if (uA > uB) {return 1}
+		return 0;
+	}
+	function numSort(a,b){
+		return parseInt(a)-parseInt(b);
+	}
+	var sprintf = (function() {
+		function get_type(variable) {
+			return Object.prototype.toString.call(variable).slice(8, -1).toLowerCase();
+		}
+		function str_repeat(input, multiplier) {
+			for (var output = []; multiplier > 0; output[--multiplier] = input) {/* do nothing */}
+			return output.join('');
+		}
+
+		var str_format = function() {
+			if (!str_format.cache.hasOwnProperty(arguments[0])) {
+				str_format.cache[arguments[0]] = str_format.parse(arguments[0]);
+			}
+			return str_format.format.call(null, str_format.cache[arguments[0]], arguments);
+		};
+
+		str_format.format = function(parse_tree, argv) {
+			var cursor = 1, tree_length = parse_tree.length, node_type = '', arg, output = [], i, k, match, pad, pad_character, pad_length;
+			for (i = 0; i < tree_length; i++) {
+				node_type = get_type(parse_tree[i]);
+				if (node_type === 'string') {
+					output.push(parse_tree[i]);
+				}
+				else if (node_type === 'array') {
+					match = parse_tree[i]; // convenience purposes only
+					if (match[2]) { // keyword argument
+						arg = argv[cursor];
+						for (k = 0; k < match[2].length; k++) {
+							if (!arg.hasOwnProperty(match[2][k])) {
+								throw(sprintf('[sprintf] property "%s" does not exist', match[2][k]));
+							}
+							arg = arg[match[2][k]];
+						}
+					}
+					else if (match[1]) { // positional argument (explicit)
+						arg = argv[match[1]];
+					}
+					else { // positional argument (implicit)
+						arg = argv[cursor++];
+					}
+
+					if (/[^s]/.test(match[8]) && (get_type(arg) != 'number')) {
+						throw(sprintf('[sprintf] expecting number but found %s', get_type(arg)));
+					}
+					switch (match[8]) {
+						case 'b': arg = arg.toString(2); break;
+						case 'c': arg = String.fromCharCode(arg); break;
+						case 'd': arg = parseInt(arg, 10); break;
+						case 'e': arg = match[7] ? arg.toExponential(match[7]) : arg.toExponential(); break;
+						case 'f': arg = match[7] ? parseFloat(arg).toFixed(match[7]) : parseFloat(arg); break;
+						case 'o': arg = arg.toString(8); break;
+						case 's': arg = ((arg = String(arg)) && match[7] ? arg.substring(0, match[7]) : arg); break;
+						case 'u': arg = Math.abs(arg); break;
+						case 'x': arg = arg.toString(16); break;
+						case 'X': arg = arg.toString(16).toUpperCase(); break;
+					}
+					arg = (/[def]/.test(match[8]) && match[3] && arg >= 0 ? '+'+ arg : arg);
+					pad_character = match[4] ? match[4] == '0' ? '0' : match[4].charAt(1) : ' ';
+					pad_length = match[6] - String(arg).length;
+					pad = match[6] ? str_repeat(pad_character, pad_length) : '';
+					output.push(match[5] ? arg + pad : pad + arg);
+				}
+			}
+			return output.join('');
+		};
+
+		str_format.cache = {};
+
+		str_format.parse = function(fmt) {
+			var _fmt = fmt, match = [], parse_tree = [], arg_names = 0;
+			while (_fmt) {
+				if ((match = /^[^\x25]+/.exec(_fmt)) !== null) {
+					parse_tree.push(match[0]);
+				}
+			else if ((match = /^\x25{2}/.exec(_fmt)) !== null) {
+				parse_tree.push('%');
+			}
+			else if ((match = /^\x25(?:([1-9]\d*)\$|\(([^\)]+)\))?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-fosuxX])/.exec(_fmt)) !== null) {
+				if (match[2]) {
+					arg_names |= 1;
+					var field_list = [], replacement_field = match[2], field_match = [];
+					if ((field_match = /^([a-z_][a-z_\d]*)/i.exec(replacement_field)) !== null) {
+						field_list.push(field_match[1]);
+						while ((replacement_field = replacement_field.substring(field_match[0].length)) !== '') {
+							if ((field_match = /^\.([a-z_][a-z_\d]*)/i.exec(replacement_field)) !== null) {
+								field_list.push(field_match[1]);
+							}
+							else if ((field_match = /^\[(\d+)\]/.exec(replacement_field)) !== null) {
+								field_list.push(field_match[1]);
+							}
+							else {
+								throw('[sprintf] huh?');
+							}
+						}
+					}
+					else {
+						throw('[sprintf] huh?');
+					}
+					match[2] = field_list;
+				}
+				else {
+					arg_names |= 2;
+				}
+				if (arg_names === 3) {
+					throw('[sprintf] mixing positional and named placeholders is not (yet) supported');
+				}
+				parse_tree.push(match);
+			}
+			else {
+				throw('[sprintf] huh?');
+			}
+			_fmt = _fmt.substring(match[0].length);
+		}
+		return parse_tree;
+	};
+
+	return str_format;
+})();
+
+var vsprintf = function(fmt, argv) {
+	argv.unshift(fmt);
+	return sprintf.apply(null, argv);
+};
+//]]>
+</script>
+
+	</body>
+</html>

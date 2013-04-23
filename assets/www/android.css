@@ -1,0 +1,12 @@
+.navtable td {
+	height:52px;
+}
+#OrgType td, #OrgTypeCombined td {
+	height:52px;
+}
+.formtable td {
+	height:55px;
+}
+.navbar-fixed-bottom {
+  bottom: -7px !important;
+}
